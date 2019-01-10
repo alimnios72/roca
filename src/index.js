@@ -2,20 +2,19 @@ const brs = require('brs');
 const glob = require('glob');
 const path = require('path');
 
-function findBrsFiles(testFile, cb) {
-    glob("source/**/*.brs", (err, files) => {
-        if (!err) {
-            files.push(testFile);
-            cb(files);
-        }
-    });
+function findBrsFiles() {
+    return glob.sync("source/**/*.brs");
 }
 
-async function runTest(files) {
+function findTestFiles() {
+    return glob.sync("tests/**/*.test.brs");
+}
+
+async function runTest(sourceFiles, testFile) {
     let rocaBrs = path.join(__dirname, "..", "resources", "roca.brs");
 
     try {
-        const result = await brs.execute([ rocaBrs, ...files ]);
+        const result = await brs.execute([ rocaBrs, testFile, ...sourceFiles ]);
     } catch(e) {
         console.error("Interpreter found an error: ", e);
         process.exit(11);
@@ -24,5 +23,7 @@ async function runTest(files) {
 }
 
 module.exports = function(testFile) {
-    findBrsFiles(testFile, runTest);
+    const sourceFiles = findBrsFiles();
+    const testsFiles = findTestFiles();
+    testsFiles.map( (test) => runTest(sourceFiles, testsFiles))
 }

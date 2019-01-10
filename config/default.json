@@ -1,0 +1,4 @@
+{
+    "brs_dir": ["source"],
+    "test_dir": ["tests"]
+}
